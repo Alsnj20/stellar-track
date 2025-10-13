@@ -1,6 +1,6 @@
 import {
   Keypair,
-Horizon,
+  Horizon,
   TransactionBuilder,
   Networks,
   Operation,
@@ -17,7 +17,68 @@ if (fs.existsSync('.env.local')) {
   dotenv.config({ path: '.env.local' });
 }
 
-//Destinatarios y montos
+//Configuración
+const server = new Horizon.Server('https://horizon-testnet.stellar.org');
+const networkPassphrase = Networks.TESTNET;
+const SECRET_KEY = process.env.SECRET_KEY;
+
+const sourceKeys = Keypair.fromSecret(SECRET_KEY);
+
+//Funcionalidad
+async function enviarPago(adress, amount, memo = '') {
+  
+  try {
+    console.log('🚀 Iniciando pago...\n');
+    
+    // Paso 1: Cargar tu cuenta
+    const sourceAccount = await server.loadAccount(sourceKeys.publicKey());
+    console.log(`Balance actual: ${sourceAccount.balances[0].balance} XLM\n`);
+
+    // Paso 1.5: Validar saldo
+    if (parseFloat(sourceAccount.balances[0].balance) < amount) {
+      throw new Error('Balance insuficiente');
+    }
+
+    // Paso 2: Construir transacción
+    const transaction = new TransactionBuilder(sourceAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: networkPassphrase
+    })
+      .addOperation(Operation.payment({
+        destination: adress,
+        asset: Asset.native(),
+        amount: amount.toString()
+      }))
+      .addMemo(memo ? Memo.text(memo) : Memo.none())
+      .setTimeout(30)
+      .build();
+    
+    // Paso 3: Firmar
+    transaction.sign(sourceKeys);
+    
+    // Paso 4: Enviar
+    const result = await server.submitTransaction(transaction);
+    
+    console.log('🎉 ¡PAGO EXITOSO!\n');
+    console.log(`💰 Enviaste: ${amount} XLM`);
+    console.log(`🔗 Hash: ${result.hash}\n`);
+    
+    return result;
+    
+  } catch (error) {
+    console.error(`❌ ERROR al enviar a ${adress}:`, error.message);
+    throw error;
+  }
+}
+
+async function enviarVariosPagos(destinations) {
+  for(const dest of destinations) {
+    console.log ('--------------------------------');
+    console.log(`Enviando a ${dest.address}...`);
+    await enviarPago(dest.address, dest.amount, `Pago a ${dest.address.slice(0, 5)}...`);
+  }
+}
+
 const destinationsAccounts = [
   { 
     address: 'GDWSCTESGJ3N35WKPN2WLQIWRHWIJ6PEOKT4F3TFXJA3GJ2APCXWDCJI', 
@@ -31,59 +92,5 @@ const destinationsAccounts = [
     amount: '20'
   }
 ];
-//Configuración
-const server = new Horizon.Server('https://horizon-testnet.stellar.org');
-const networkPassphrase = Networks.TESTNET;
-const SECRET_KEY = process.env.SECRET_KEY;
 
-const sourceKeys = Keypair.fromSecret(SECRET_KEY);
-
-//Funcionalidad
-async function enviarPagosEnUnaTransaccion(destinations) {
-  console.log('====================================================\n');
-
-  try {
-    console.log('🚀 Iniciando envío múltiple en una sola transacción...\n');
-
-    const sourceAccount = await server.loadAccount(sourceKeys.publicKey());
-    const balanceXLM = parseFloat(sourceAccount.balances.find(b => b.asset_type === 'native').balance);
-    const total = destinations.reduce((sum, d) => sum + parseFloat(d.amount), 0);
-
-    if (balanceXLM < total) {
-      throw new Error(`Balance insuficiente (${balanceXLM} < ${total})`);
-    }
-
-    // Construir transacción con múltiples operaciones
-    let builder = new TransactionBuilder(sourceAccount, {
-      fee: BASE_FEE * destinations.length,
-      networkPassphrase
-    });
-
-    for (const dest of destinations) {
-      builder = builder.addOperation(Operation.payment({
-        destination: dest.address,
-        asset: Asset.native(),
-        amount: dest.amount.toString()
-      }));
-      console.log(`➡️  Preparando pago de ${dest.amount} XLM a ${dest.address.slice(0, 5)}...${dest.address.slice(-5)}`);
-    }
-
-    const transaction = builder
-      .addMemo(Memo.text('Pagos múltiples'))
-      .setTimeout(30)
-      .build();
-
-    transaction.sign(sourceKeys);
-
-    const result = await server.submitTransaction(transaction);
-
-    console.log('\n🎉 Transacción múltiple completada');
-    console.log(`🔗 Hash: ${result.hash}\n`);
-
-    console.log('====================================================\n');
-  } catch (error) {
-    console.error('❌ Error en transacción múltiple:', error.message);
-  }
-}
-
-await enviarPagosEnUnaTransaccion(destinationsAccounts);
+await enviarVariosPagos(destinationsAccounts);
