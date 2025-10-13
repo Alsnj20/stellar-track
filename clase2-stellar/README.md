@@ -1,4 +1,4 @@
-# Fundamentos de Stellar
+# Fundamentos de Stellar 🦈💗
 ## Instalación y Configuración
 ### Requisitos Previos
 - Node.js y npm
@@ -132,4 +132,4 @@ async function menu() {
     menu();
   });
 ```
-![Resultado](./img/mi-wallet.png)
+![Resultado](./img/my-wallet.png)
