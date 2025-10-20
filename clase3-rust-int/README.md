@@ -29,7 +29,7 @@
 - **contract/contractimpl**: Macros para definir e implementar contratos inteligentes.
 - **WASM**: Formato de código ejecutable en la blockchain.
 
-[!NOTE]: Todas las funciones reciben `env::Env` como parámetro.
+NOTA: Todas las funciones reciben `env::Env` como parámetro.
 
 ## Tipos de datos para Smart Contracts (Rust + Soroban)
 

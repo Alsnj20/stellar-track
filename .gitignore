@@ -11,5 +11,8 @@ logs
 .env.*.secret
 .env.secrets
 
+# Rust
+**/target/
+
 # Test
 *.txt
