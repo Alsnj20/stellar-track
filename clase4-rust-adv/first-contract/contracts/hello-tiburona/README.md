@@ -95,7 +95,8 @@ Proceso de construcción del contrato:
 ![Build Contract](../../../img/build.png)
 
 ## 3. Test Contract
-Test corriendo: 
+Test corriendo:
+ 
 ![Test Contract](../../../img/test.png)
 
 ## 4. Optimizar Contrato
