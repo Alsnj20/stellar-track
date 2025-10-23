@@ -193,3 +193,4 @@ impl HelloContract {
 
         Ok(())
     }
+}
