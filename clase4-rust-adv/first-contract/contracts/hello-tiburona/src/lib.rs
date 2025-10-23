@@ -25,6 +25,7 @@ pub enum DataKey {
     Admin,
     CountGreetings,
     CountGreetingsPerUser(Address),
+    CharacterLimit,
     LastGreeting(Address),
 }
 
@@ -171,4 +172,24 @@ impl HelloContract {
 
         Ok(())
     }
-}   
+
+    // RETO3: SET CHARACTER LIMIT
+    pub fn set_limit(env:Env, caller:Address, limit:u32) -> 
+    Result<(), HelloError> {
+        // Check is caller is admin
+        let admin: Address = env.storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .ok_or(HelloError::NotInitialized)?;
+
+        if caller != admin {
+            return Err(HelloError::NotAuthorized);
+        }
+
+        // Set character limit
+        env.storage()
+            .instance()
+            .set(&DataKey::CharacterLimit, &limit);
+
+        Ok(())
+    }
