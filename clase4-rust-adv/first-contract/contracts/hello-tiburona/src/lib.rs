@@ -24,6 +24,7 @@ pub enum HelloError {
 pub enum DataKey {
     Admin,
     CountGreetings,
+    CountGreetingsPerUser(Address),
     LastGreeting(Address),
 }
 
@@ -49,7 +50,7 @@ impl HelloContract {
         env.storage()
             .instance()
             .set(&DataKey::CountGreetings, &0u32);
-        
+
         //Extend TTL
         env.storage()
             .instance()
@@ -79,6 +80,16 @@ impl HelloContract {
         env.storage()
             .instance()
             .set(&key_count, &(count + 1));
+
+        // RETO1: ADD INCREMENT COUNTER PER USER
+        let key_count_user = DataKey::CountGreetingsPerUser(user.clone());
+        let count_user: u32 = env.storage()
+            .persistent()
+            .get(&key_count_user)
+            .unwrap_or(0);
+        env.storage()
+            .persistent()
+            .set(&key_count_user, &(count_user + 1));
         
 
         //Save last greeting of user
@@ -99,10 +110,17 @@ impl HelloContract {
     }
 
     // FASE 5
-    pub fn get_greeting_count(env: Env) -> u32 {
+    pub fn get_greeting_count(env: Env,) -> u32 {
         env.storage()
             .instance()
             .get(&DataKey::CountGreetings)
+            .unwrap_or(0)
+    }
+    // RETO1: GET GREETING COUNT PER USER
+    pub fn get_greeting_count_per_user(env: Env, user: Address) -> u32 {
+        env.storage()
+            .persistent()
+            .get(&DataKey::CountGreetingsPerUser(user))
             .unwrap_or(0)
     }
 
@@ -132,4 +150,25 @@ impl HelloContract {
         
         Ok(())
     }
-}
+
+    // RETO2: TRANSFER ADMIN
+    pub fn transfer_admin(env:Env, caller:Address, new_admin:Address) -> 
+    Result<(), HelloError> {
+        // Check is caller is admin
+        let admin: Address = env.storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .ok_or(HelloError::NotInitialized)?;
+
+        if caller != admin {
+            return Err(HelloError::NotAuthorized);
+        }
+
+        // Transfer admin
+        env.storage()
+            .instance()
+            .set(&DataKey::Admin, &new_admin);
+
+        Ok(())
+    }
+}   
