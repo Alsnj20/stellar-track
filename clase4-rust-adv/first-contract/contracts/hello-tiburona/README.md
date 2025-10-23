@@ -96,7 +96,7 @@ Proceso de construcción del contrato:
 
 ## 3. Test Contract
 Test corriendo:
- 
+
 ![Test Contract](../../../img/test.png)
 
 ## 4. Optimizar Contrato
@@ -109,6 +109,7 @@ Proceso de generación de llave:
 ![Generate Key](../../../img/keysaved.png)
 ### 5.2 Fundear Llave
 Proceso de fondeo de llave:
+
 ![Fund Key](../../../img/fund.png)
 ### 5.3 Desplegar Contrato
 Proceso de despliegue del contrato:
@@ -134,7 +135,9 @@ Visualización del contrato en Stellar Expert:
    Lo mas retados fue entender el flujo del despliegue y la invocación del contrato en la red de testnet, como funcionan algunos parametros y las dependencias necesarias para compilar y optimizar el contrato.
 
 2. **¿Qué aprendiste que no esperabas?**
+    
     Aprendí sobre la optimización de contratos WASM y la importancia de las herramientas CLI para interactuar con la red Stellar, así como la estructura y organización de un proyecto de contrato inteligente en Rust.
 
 3. **¿Qué aplicarías en tus propios proyectos?**
+    
     Aplicaría el uso de Rust para desarrollar contratos inteligentes debido a su seguridad y eficiencia, además de utilizar las herramientas de Stellar CLI para facilitar el proceso de despliegue y gestión de contratos en la red Stellar.
