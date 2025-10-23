@@ -128,11 +128,12 @@ Visualización del contrato en Stellar Expert:
 ![Stellar Expert](../../../img/stellarexpert.png)
 
 # Reflexiones Finales
-1. ¿Qué fue lo más retador?
+1. **¿Qué fue lo más retador?**
+
    Lo mas retados fue entender el flujo del despliegue y la invocación del contrato en la red de testnet, como funcionan algunos parametros y las dependencias necesarias para compilar y optimizar el contrato.
 
-2. ¿Qué aprendiste que no esperabas?
+2. **¿Qué aprendiste que no esperabas?**
     Aprendí sobre la optimización de contratos WASM y la importancia de las herramientas CLI para interactuar con la red Stellar, así como la estructura y organización de un proyecto de contrato inteligente en Rust.
 
-3. ¿Qué aplicarías en tus propios proyectos?
+3. **¿Qué aplicarías en tus propios proyectos?**
     Aplicaría el uso de Rust para desarrollar contratos inteligentes debido a su seguridad y eficiencia, además de utilizar las herramientas de Stellar CLI para facilitar el proceso de despliegue y gestión de contratos en la red Stellar.
