@@ -108,9 +108,300 @@ fn test_invalid_metadata(){
     assert_eq!(result_symbol, Err(Ok(MiPasajeError::InvalidMetadata)), "Expected InvalidMetadata error for symbol");
 }
 
+/ ===================================
+// 2. TESTS DE MINT Y BALANCE
+// ===================================
 
+#[test]
+fn test_mint_and_balance(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
 
+    let admin = Address::generate(&env);
+    let user = Address::generate(&env);
 
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth: simular la autorizacion del admin, es como si el admin estuviera firmando la transaccion.
+    env.mock_all_auths();
+    
+    // --Mint tokens to user
+    client.mint(&user, &100).unwrap();
+
+    // Check user balance
+    assert_eq!(client.balance(&user), 100);
+    assert_eq!(client.get_total_supply(), 100);
+}
+
+#[test]
+fn test_mint_zero(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let user = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // --Try to mint zero tokens
+    let result = client.try_mint(&user, &0);
+
+    assert_eq!(result, Err(MiPasajeError::InvalidAmount), "Expected InvalidAmount error");
+}
+
+fn test_mint_only_admin(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let user = Address::generate(&env);
+    let attacker = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // --Attacker tries to mint tokens
+    let result = client.try_mint(&attacker, &100);
+
+    assert_eq!(result, Err(MiPasajeError::Unauthorized), "Expected Unauthorized error");
+}
+
+// ===================================
+// 3. TESTS DE TRANSFER
+// ===================================
+/// Verifica el flujo completo de transfer:
+/// 1. Alice tiene 1000 pasajes
+/// 2. Alice transfiere 250 pasajes a Bob
+/// 3. Ambos balances se actualizan correctamente
+
+#[test]
+fn test_transfer(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // Mint 1000 pasajes to Alice
+    client.mint(&alice, &1000).unwrap();
+
+    // Alice transfers 250 pasajes to Bob
+    client.transfer(&alice, &bob, &250).unwrap();
+
+    // Verify balances
+    assert_eq!(client.balance(&alice), 750);
+    assert_eq!(client.balance(&bob), 250);
+}
+
+#[test]
+fn test_transfer_insufficient_balance(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // Mint 100 pasajes to Alice
+    client.mint(&alice, &100).unwrap();
+
+    let result = client.try_transfer(&alice, &bob, &200);
+
+    assert_eq!(result, Err(MiPasajeError::InsufficientBalance), "Expected InsufficientBalance error");
+}
+
+#[test]
+fn test_transfer_to_self(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // Mint 100 pasajes to Alice
+    client.mint(&alice, &100).unwrap();
+
+    // Alice tries to transfer 50 pasajes to herself
+    let result = client.try_transfer(&alice, &alice, &50);
+
+    assert_eq!(result, Err(MiPasajeError::InvalidRecipient), "Expected InvalidRecipient error");
+    assert_eq!(client.balance(&alice), 100, "Alice's balance should remain unchanged");
+}
+
+// ===================================
+// 4. TESTS DE APPROVE + TRANSFER_FROM
+// ===================================
+/// Test del flujo completo de approve + transfer_from
+/// 
+/// Este es el patrón "allowance" usado en DeFi:
+/// 1. Alice aprueba a Bob para gastar hasta 300 pasajes en su nombre
+/// 2. Bob usa transfer_from para mover 200 pasajes de Alice a Charlie
+/// 3. El allowance se reduce automáticamente a 100 pasajes
+
+#[test]
+fn test_approve_and_transfer_from(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+    let charlie = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // Mint 1000 pasajes to Alice
+    client.mint(&alice, &1000).unwrap();
+
+    // Alice approves Bob to spend 300 pasajes
+    client.approve(&alice, &bob, &300).unwrap();
+    assert_eq!(client.allowance(&alice, &bob), 300);
+
+    // Bob transfers 200 pasajes from Alice to Charlie
+    client.transfer_from(&bob, &alice, &charlie, &200).unwrap();
+
+    // Verify balances and allowance
+    assert_eq!(client.balance(&alice), 800);
+    assert_eq!(client.balance(&charlie), 200);
+    assert_eq!(client.allowance(&alice, &bob), 100);
+}
+
+#[test]
+fn test_transfer_from_insufficient_allowance(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+    let charlie = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+    
+    // Mint 1000 pasajes to Alice
+    client.mint(&alice, &1000).unwrap();
+
+    // Alice approves Bob to spend 100 pasajes
+    client.approve(&alice, &bob, &100).unwrap();
+    assert_eq!(client.allowance(&alice, &bob), 100);
+
+    // Bob tries to transfer 200 pasajes from Alice to Charlie
+    let result = client.try_transfer_from(&bob, &alice, &charlie, &200);
+
+    assert_eq!(result, Err(Ok(MiPasajeError::InsufficientAllowance)), "Expected InsufficientAllowance error");
+}
+
+#[test]
+fn test_approve_revoke(){
+    let env = Env::default();
+    let contract_id = env.register(MiPasajeToken,());
+    let client = MiPasajeTokenClient::new(&env, &contract_id);
+    
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+
+    let result = client.try_initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0
+    ).unwrap();
+    
+    env.mock_all_auths();
+    let result = client.try_mint(&alice, &1000).unwrap();
+
+    // Aprobar y luego revocar
+    let result = client.try_approve(&alice, &bob, &500).unwrap();
+    assert_eq!(client.allowance(&alice, &bob), 500);
+
+    // Revocación, no deberia permitirse
+    let result = client.try_approve(&alice, &bob, &0).unwrap();  
+    assert_eq!(client.allowance(&alice, &bob), 0);
+}
 
 
 
