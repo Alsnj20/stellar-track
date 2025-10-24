@@ -53,6 +53,35 @@ cargo check
 ```bash
 stellar contract build
 ```
+
+### 6.1 Ejecutar Tests
+#### Comandos Básicos
+```bash
+# Ejecutar todos los tests
+cargo test
+
+# Ver output detallado
+cargo test -- --nocapture
+
+# Test específico
+cargo test test_transfer
+
+# Tests en modo release (más rápido)
+cargo test --release
+```
+
+#### Cobertura de Tests
+```bash
+# Instalar cargo-tarpaulin (una sola vez)
+cargo install cargo-tarpaulin
+
+# Generar reporte de cobertura
+cargo tarpaulin --out Html
+
+# Abrir reporte en Windows
+start tarpaulin-report.html
+```
+
 #### Optimizar el WASM  
 ```rust
 stellar contract optimize --wasm target/wasm32v1-none/release/hello_tiburona.wasm

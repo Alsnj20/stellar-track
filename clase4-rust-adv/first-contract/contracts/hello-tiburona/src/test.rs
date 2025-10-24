@@ -16,6 +16,7 @@ fn test_initialize() {
 
     assert_eq!(client.get_greeting_count(), 0);
 }
+
 #[test]
 #[should_panic(expected = "Error(Contract, #4)")]
 fn test_no_reinicializar() {
