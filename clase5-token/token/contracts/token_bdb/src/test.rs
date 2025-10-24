@@ -403,6 +403,74 @@ fn test_approve_revoke(){
     assert_eq!(client.allowance(&alice, &bob), 0);
 }
 
+// ===================================
+// 5. TESTS DE BURN
+// ===================================
+#[test]
+fn test_burn(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+    
+    let admin = Address::generate(&env);
+    let alice = Address::generate(&env);
+
+    // Initialize token
+    client.initialize(
+        &admin,
+        &String::from_str(&env, "MiPasajeToken"),
+        &String::from_str(&env, "MPJ"),
+        &0,
+    ).unwrap();
+
+    // Mock auth
+    env.mock_all_auths();
+
+    // Mint 500 pasajes to Alice
+    client.mint(&alice, &500).unwrap();
+    // Burn 200 pasajes from Alice
+    client.burn(&alice, &200).unwrap();
+
+    // Verify balance and total supply
+    assert_eq!(client.balance(&alice), 300);
+    assert_eq!(client.get_total_supply(), 300);
+}
+
+// ==================================
+// 6. TESTS DE OPERACIONES SIN INICIALIZAR
+// ==================================
+
+#[test]
+fn test_operations_without_init(){
+    let env = Env::default();
+    let contract_id = env.register(TokenMiPasaje, ());
+    let client = TokenMiPasajeClient::new(&env, &contract_id);
+
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+
+    env.mock_all_auths();
+
+    // Try to mint without initialization
+    // Todas las operaciones deben fallar con NotInitialized
+    assert_eq!(
+        client.try_mint(&alice, &100),
+        Err(Ok(MiPasajeError::NotInitialized)), 
+        "Expected NotInitialized error on mint"
+    );
+    
+    assert_eq!(
+        client.try_transfer(&alice, &bob, &50),
+        Err(Ok(MiPasajeError::NotInitialized)),
+        "Expected NotInitialized error on transfer"
+    );
+    
+    assert_eq!(
+        client.try_burn(&alice, &10),
+        Err(Ok(MiPasajeError::NotInitialized)),
+        "Expected NotInitialized error on burn"
+    );
+}
 
 
 
