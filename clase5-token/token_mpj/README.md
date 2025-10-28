@@ -44,39 +44,59 @@ token_bdb/
 │   ├── errors.rs    # Manejo de errores
 │   └── test.rs      # Tests unitarios
 ├── Cargo.toml       # Configuración optimizada
-├── docs/
-│   ├── token_codebit_guide.md      # Guía técnica original
-│   ├── devpoints_deploy_guide.md   # Guía de deployment completa
-│   └── test_changes_doc.md   # Documentación de tests
 └── img/
-    ├── TestRunning.jpg
-    ├── CompilaciónExitosa.jpg
-    ├── ReporteHtmlTest.jpg
+    ├── test-running.png
+    ├── compilacion-exitosa.png
+    ├── out-html.png
+    ├── reporte.png
     └── AliceTransaccionesEjemplo.jpg
 ```
 
-## Ejecutar Test
-Comandos Básicos
-# Ejecutar todos los tests
-cargo test
+### Pasos para contruir y ejecutar el proyecto
+1. **Clonar el Repositorio**
+   ```bash
+   git clone https://github.com/Alsnj20/stellar-track.git
+   ```
+2. **Navegar al Directorio del Proyecto**
+   ```bash
+   cd clase5-token/token_mpj
+   ```
+3. **Verificar y Ejecutar Compilacion y Testing**
+   ```bash
+   cargo check
+   cargo test
+   ```
+3. **Compilar el Proyecto**
+   ```bash
+   stellar contract build
+   ```
+4. **Optimizar WASM**
+   ```bash
+   stellar contract optimize --wasm <path>
+   ```
+5. **Deployar a Testnet**
+   ```bash
+   stellar contract deploy --wasm <path> --network testnet
+   ```
 
-# Ver output detallado
-cargo test -- --nocapture
+## Funcionalidades Clave
+- **initialize:** Configura el contrato con parámetros iniciales.
+- **mint:** Permite al administrador emitir nuevos tokens (pasajes).
+- **balance:** Consulta el saldo de tokens de un usuario.
+- **approve:** Autoriza a otro usuario a gastar tokens en su nombre.
+- **transfer_from:** Permite a un usuario gastar tokens autorizados.
+- **burn:** Elimina tokens usados, validando su uso.
 
-# Test específico
-cargo test test_transfer
+## Capturas de Pantalla
 
-# Tests en modo release (más rápido)
-cargo test --release
-Cobertura de Tests
-# Instalar cargo-tarpaulin (una sola vez)
-cargo install cargo-tarpaulin
+## Resultados de Testing
+![Test Running](img/test-running.png)
 
-# Generar reporte de cobertura
-cargo tarpaulin --out Html
+## Compilación Optima
+![Compilacion Exitosa](img/compilacion-exitosa.png)
 
-# Abrir reporte en Windows
-start tarpaulin-report.html
-
-
+## Reporte HTML de Tests
+![Out HTML](img/out-html.png)
+## Reporte de Cobertura
+![Reporte](img/reporte.png)
 

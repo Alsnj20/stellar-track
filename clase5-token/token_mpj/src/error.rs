@@ -43,4 +43,7 @@ pub enum MiPasajeError {
     /// Nombre o símbolo inválido (vacío o muy largo)
     /// Validación de metadatos en initialize()
     InvalidMetadata = 9,
+
+    /// No autorizado para realizar la operación
+    Unauthorized = 10,
 }

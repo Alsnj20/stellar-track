@@ -1,11 +1,20 @@
-[workspace]
-resolver = "2"
-members = [
-  "contracts/*",
-]
+[package]
+name = "token_mpj"
+version = "0.0.0"
+edition = "2024"
+authors = ["Alsnj20 dev"]
+description = "Token MIPASAJE"
+publish = false
 
-[workspace.dependencies]
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
 soroban-sdk = "23.0.2"
+
+[dev-dependencies]
+soroban-sdk = { version = "23.0.2", features = ["testutils"] }
 
 [profile.release]
 opt-level = "z"

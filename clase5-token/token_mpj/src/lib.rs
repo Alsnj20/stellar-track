@@ -8,14 +8,13 @@
 
 use soroban_sdk::{
     contract, contractimpl, Address, Env, String, 
-    symbol_short, Symbol
 };
 
 mod storage;
-mod errors;
+mod error;
 
-use storage::{DataKey, TokenMetadata};
-use errors::MiPasajeError;
+use storage::{DataKey};
+use error::MiPasajeError;
 
 /// Constantes de configuración
 const MAX_DECIMALS: u32 = 18;
@@ -129,14 +128,14 @@ impl MiPasajeTrait for TokenMiPasaje {
         env.storage().instance().extend_ttl(100_000, 200_000);
         
         // 6. Emitir evento rico con todos los metadatos
-        env.events().publish(
-            (symbol_short!("init"), admin.clone()),
-            TokenMetadata {
-                name: name.clone(),
-                symbol: symbol.clone(),
-                decimals,
-            }
-        );
+        // env.events().publish(
+        //     (symbol_short!("init"), admin.clone()),
+        //     TokenMetadata {
+        //         name: name.clone(),
+        //         symbol: symbol.clone(),
+        //         decimals,
+        //     }
+        // );
         
         Ok(())
     }
@@ -153,7 +152,7 @@ impl MiPasajeTrait for TokenMiPasaje {
             .get(&DataKey::Admin)
             .ok_or(MiPasajeError::NotInitialized)?;
 
-        ///verifica que la transaccion fue autorizada por el admin
+        // verifica que la transaccion fue autorizada por el admin
         admin.require_auth();
         
         // 3. Validaciones
@@ -192,10 +191,10 @@ impl MiPasajeTrait for TokenMiPasaje {
         );
         
         // 8. Emitir evento detallado
-        env.events().publish(
-            (symbol_short!("mint psj"), to.clone()), 
-            (amount, new_balance, new_total)
-        );
+        // env.events().publish(
+        //     (symbol_short!("mint_psj"), to.clone()), 
+        //     (amount, new_balance, new_total)
+        // );
         
         Ok(())
     }
@@ -248,10 +247,10 @@ impl MiPasajeTrait for TokenMiPasaje {
         );
         
         // 6. Emitir evento
-        env.events().publish(
-            (symbol_short!("burn psj"), from),
-            (amount, new_balance, new_total)
-        );
+        // env.events().publish(
+        //     (symbol_short!("burn_psj"), from),
+        //     (amount, new_balance, new_total)
+        // );
         
         Ok(())
     }
@@ -325,10 +324,10 @@ impl MiPasajeTrait for TokenMiPasaje {
         );
         
         // 7. Emitir evento con balances post-transferencia
-        env.events().publish(
-            (symbol_short!("transfer"), from, to), 
-            (amount, new_from_balance, new_to_balance)
-        );
+        // env.events().publish(
+        //     (symbol_short!("transfer"), from, to), 
+        //     (amount, new_from_balance, new_to_balance)
+        // );
         
         Ok(())
     }
@@ -353,7 +352,7 @@ impl MiPasajeTrait for TokenMiPasaje {
         }
         
         // 4. Obtener allowance anterior para el evento
-        let old_allowance = Self::allowance(env.clone(), from.clone(), spender.clone());
+        // let old_allowance = Self::allowance(env.clone(), from.clone(), spender.clone());
         
         // 5. Actualizar allowance
         if amount == 0 {
@@ -374,10 +373,10 @@ impl MiPasajeTrait for TokenMiPasaje {
         }
         
         // 6. Evento mejorado con allowance anterior y nuevo
-        env.events().publish(
-            (symbol_short!("approve"), from, spender),
-            (old_allowance, amount)
-        );
+        // env.events().publish(
+        //     (symbol_short!("approve"), from, spender),
+        //     (old_allowance, amount)
+        // );
         
         Ok(())
     }
@@ -475,10 +474,10 @@ impl MiPasajeTrait for TokenMiPasaje {
         }
         
         // 9. Emitir evento completo (FIX: evento faltante)
-        env.events().publish(
-            (symbol_short!("trnsfr_frm"), spender, from.clone(), to.clone()),
-            (amount, new_from_balance, new_to_balance, new_allowance)
-        );
+        // env.events().publish(
+        //     (symbol_short!("trnsf_frm"), spender, from.clone(), to.clone()),
+        //     (amount, new_from_balance, new_to_balance, new_allowance)
+        // );
         
         Ok(())
     }
@@ -527,3 +526,6 @@ impl MiPasajeTrait for TokenMiPasaje {
             .expect("Admin not initialized")
     }
 }
+
+#[cfg(test)]
+mod test;
