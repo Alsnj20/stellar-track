@@ -48,13 +48,8 @@ code .
 ```bash
 cargo check
 ```
-### 6. Compilar a WebAssembly
-.wasm es un formato de bytecode que puede ser ejecutado en la máquina virtual de Stellar.Es el resultado de compilar Rust
-```bash
-stellar contract build
-```
 
-### 6.1 Ejecutar Tests
+### 6. Ejecutar Tests
 #### Comandos Básicos
 ```bash
 # Ejecutar todos los tests
@@ -81,13 +76,18 @@ cargo tarpaulin --out Html
 # Abrir reporte en Windows
 start tarpaulin-report.html
 ```
+### 7. Compilar a WebAssembly
+.wasm es un formato de bytecode que puede ser ejecutado en la máquina virtual de Stellar.Es el resultado de compilar Rust
+```bash
+stellar contract build
+```
 
 #### Optimizar el WASM  
 ```rust
 stellar contract optimize --wasm target/wasm32v1-none/release/hello_tiburona.wasm
 ```
 
-### 7. Configurar Identidad (Wallet)
+### 8. Configurar Identidad (Wallet)
 ```bash
 stellar keys generate alice --network testnet
 ```
@@ -97,12 +97,12 @@ stellar keys generate alice --network testnet
 stellar keys fund alice --network testnet
 ```
 
-### 8. Deployar en Testnet
+### 9. Deployar en Testnet
 ```bash
 stellar contract deploy
 ```
 
-### 9. Invocar el Contrato
+### 10. Invocar el Contrato
 ```bash
 stellar contract invoke
 ```
