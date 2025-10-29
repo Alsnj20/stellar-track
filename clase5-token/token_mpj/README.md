@@ -87,16 +87,33 @@ token_bdb/
 - **transfer_from:** Permite a un usuario gastar tokens autorizados.
 - **burn:** Elimina tokens usados, validando su uso.
 
-## Capturas de Pantalla
+## Testing y Cobertura
 
-## Resultados de Testing
+### Resultados de Testing
 ![Test Running](img/test-running.png)
 
-## Compilación Optima
+### Compilación Optima
 ![Compilacion Exitosa](img/compilacion-exitosa.png)
 
-## Reporte HTML de Tests
+### Reporte HTML de Tests
 ![Out HTML](img/out-html.png)
-## Reporte de Cobertura
+### Reporte de Cobertura
 ![Reporte](img/reporte.png)
 
+## Generar y Deployar y mas
+
+### Deployar el Contrato a Testnet
+El siguiente link muestra un ejemplo de deploy exitoso del contrato MiPasaje a la red de prueba (Testnet) de Stellar:
+1. Link al contrato desplegado: https://lab.stellar.org/r/testnet/contract/CDE25CO3EYOJFPBWAP7OZV5WCUTM66QDDVYT7KV72DKCDQR4NWMRTIDA
+2. Link a la transacción de deploy: https://stellar.expert/explorer/testnet/tx/29b8f05c100b7ba270fb43f884b42dbf5234678e464008170707af2ac9daf7db
+```bash
+PS C:\Ordenador\web3\Stellar\stellar-track\clase5-token\token_mpj> stellar contract deploy --wasm target/wasm32v1-none/release/token_mpj.wasm --source-account als --network testnet
+Deploying contract...
+🌐 Network: Stellar Testnet
+📝 Contract ID: CDE25CO3EYOJFPBWAP7OZV5WCUTM66QDDVYT7KV72DKCDQR4NWMRTIDA
+🔐 WASM Hash: 522d1b672dcc936a4f2ac785120121778724ebb807a5201af40471609204c7cf
+🫱🏼‍🫲🏼 Transaction Hash: 29b8f05c100b7ba270fb43f884b42dbf5234678e464008170707af2ac9daf7db
+✅ Status: Successful
+Deployed!
+```
+Para ver el uso del contrato, revisar el archivo [EJEMPLO.md](uso/EJEMPLO.md)
