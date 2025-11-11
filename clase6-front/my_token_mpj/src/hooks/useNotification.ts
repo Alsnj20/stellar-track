@@ -4,6 +4,7 @@ import {
   NotificationContextType,
 } from "../providers/NotificationProvider";
 
+// Return a functions to show notifications (success, error, info, etc.)
 export const useNotification = (): NotificationContextType => {
   const context = use(NotificationContext);
   if (!context) {

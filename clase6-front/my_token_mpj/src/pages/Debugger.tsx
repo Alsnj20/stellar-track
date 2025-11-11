@@ -8,6 +8,7 @@ import { useContracts } from "../debug/hooks/useContracts.ts";
 import RenderContractMetadata from "../debug/components/RenderContractMetadata.tsx";
 
 const Debugger: React.FC = () => {
+  // Load all contracts using the custom hook
   const { data, isLoading } = useContracts();
   const contractMap = data?.loadedContracts ?? {};
   const failedContracts = data?.failed ?? {};
@@ -127,10 +128,10 @@ const Debugger: React.FC = () => {
       {(!selectedContract ||
         (!contractMap[selectedContract] &&
           !failedContracts[selectedContract])) && (
-        <Layout.Inset>
-          <p>No contract selected or contract not found.</p>
-        </Layout.Inset>
-      )}
+          <Layout.Inset>
+            <p>No contract selected or contract not found.</p>
+          </Layout.Inset>
+        )}
 
       {failedContracts[selectedContract] && (
         <Layout.Inset>

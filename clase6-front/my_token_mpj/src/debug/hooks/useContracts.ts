@@ -1,3 +1,4 @@
+// Search contract files in the specified directory
 import { useQuery } from "@tanstack/react-query";
 import { Client } from "@stellar/stellar-sdk/contract";
 import {

@@ -1,6 +1,9 @@
+// Settings and utilities for Stellar network configuration, including environment variable parsing and lab URL generation.
+
 import { z } from "zod";
 import { WalletNetwork } from "@creit.tech/stellar-wallets-kit";
 import { Network, NetworkType } from "../debug/types/types";
+
 
 const envSchema = z.object({
   PUBLIC_STELLAR_NETWORK: z.enum([
@@ -17,6 +20,7 @@ const envSchema = z.object({
 
 const parsed = envSchema.safeParse(import.meta.env);
 
+// If parsing fails, we default to a local standalone network configuration.
 const env: z.infer<typeof envSchema> = parsed.success
   ? parsed.data
   : {
@@ -36,6 +40,7 @@ const stellarEncode = (str: string) => {
   return str.replace(/\//g, "//").replace(/;/g, "/;");
 };
 
+// Generate URLs for the Stellar Laboratory
 export const labPrefix = () => {
   switch (stellarNetwork) {
     case "LOCAL":

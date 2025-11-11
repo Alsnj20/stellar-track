@@ -1,6 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -75,6 +72,8 @@ export const InvokeContractForm = ({
     methodType: string;
   } | null>(null);
   const [isExtensionLoading, setIsExtensionLoading] = useState(false);
+
+  // form state
   const [formValue, setFormValue] = useState<SorobanInvokeValue>({
     contract_id: contractId,
     function_name: funcName,
@@ -258,6 +257,7 @@ export const InvokeContractForm = ({
     return handleSimulate();
   };
 
+
   const triggerSubmit = async () => {
     setSubmissionQueued(false);
 
@@ -298,6 +298,7 @@ export const InvokeContractForm = ({
         throw new Error("Failed to fetch sequence number. Please try again.");
       }
 
+      // Transaction parameters
       const txnParams: TransactionBuildParams = {
         source_account: userPk || "",
         fee: BASE_FEE,
@@ -479,13 +480,12 @@ export const InvokeContractForm = ({
     const simulationSummary = isSuccessfulSimulation ? (
       <Alert variant="success" placement="inline" title="Successful Simulation">
         {`The Simulation succeeded with
-        ${
-          (
+        ${(
             simulateResult as Api.RawSimulateTransactionResponse
           ).results?.filter(
             (r) => "returnValueJson" in r && r.returnValueJson !== "void",
           ).length || 0
-        }
+          }
         returned value(s).`}
       </Alert>
     ) : isFailedSimulation ? (
